@@ -11,6 +11,16 @@ var current_figure = 1 # 0 vacio | 1 x | 2 o
 var figure = load("res://scenes/xo.tscn")
 
 var win = -1 # -1 nothing | 0 draw | 1 x | 2 o
+var current_turn = 0
+
+func reset_values():
+	board = [[0, 0, 0],
+			 [0, 0, 0],
+			 [0, 0, 0]]
+
+	current_figure = 1
+	win = -1
+	current_turn = 0
 
 func figure_pos(x, y):
 	if x == 0 and y == 0:
@@ -44,8 +54,14 @@ func figure_pos(x, y):
 	_add_element_to_board(x,y)
 	check_win(current_figure)
 	current_figure()
+
+	current_turn += 1
+	draw() # empate ?
 	
-	print(board)
+func draw():
+	if current_turn >= 10:
+		win = 0
+		get_tree().change_scene("res://scenes/final.tscn")
 	
 func _generate_figure(x, y):
 	var xo = figure.instance()
@@ -53,6 +69,8 @@ func _generate_figure(x, y):
 		
 	if current_figure == 2:
 		xo.change_o()
+	
+	xo.add_to_group("figures")
 	
 	xo.set_pos(Vector2(x,y))
 
@@ -96,3 +114,8 @@ func check_win(current_pos):
 		win = current_figure
 		get_tree().change_scene("res://scenes/final.tscn")
 		print("epic win ", current_figure)
+
+func clear_figures():
+	for i in get_tree().get_nodes_in_group("figures"):
+		i.queue_free()
+		
